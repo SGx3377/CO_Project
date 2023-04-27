@@ -35,7 +35,7 @@ with open("input.txt", "r") as f:
         single_line = ''
 
         for i in line:
-            print(i)
+            # print(i)
             if i == '':
                 break
 
