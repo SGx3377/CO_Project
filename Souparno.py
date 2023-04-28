@@ -10,8 +10,7 @@ dict_opcodes = {"add": "00000", "sub": "00001", "mov": ["00010", "00011"], "ld":
 #         "not":"01101", "cmp":"01110", "jmp":"01111", "jlt":"11100", "jgt":"11101", "je":"11111", "hlt":"11010"}
 
 dict_reg = {"R0": "000", "R1": "001", "R2": "010", "R3": "011", "R4": "100", "R5": "101", "R6": "110", "FLAGS": "111"}
-
-
+dict_var = {}
 def dec_bin(dec):
     dec = int(dec)
     binary = ''
@@ -30,6 +29,7 @@ def dec_bin(dec):
 
 with open("input.txt", "r") as f:
     new_str = ''
+    count = 0
     for lines in f.readlines():
         a = lines.strip(' ')
         b = a.strip('\t')
@@ -49,10 +49,13 @@ with open("input.txt", "r") as f:
                 if i == "mov":
                     if line[-1][0] == '$':
                         single_line += dict_opcodes[i][0]
+                        count += 1
                     else:
                         single_line += dict_opcodes[i][1]
+                        count += 1
                 else:
                     single_line += dict_opcodes[i]
+                    count += 1
 
             if i in dict_reg:
                 single_line += dict_reg[i]
@@ -63,7 +66,21 @@ with open("input.txt", "r") as f:
         unused = 16 - len(single_line)
         str_final = single_line[0:5] + ('0' * unused) + (single_line[5:])
         new_str += str_final + '\n'
-
+    print(f'Number of instructions are {count}')
+    f.seek(0)
+    t = count
+    for lines in f.readlines():
+        a = lines.strip(' ')
+        b = a.strip('\t')
+        c = b.strip('\n')
+        #q = lines[:-1]
+        line = c.split(" ")
+        str_final = ''
+        single_line = ''
+        if line[0]=="var":
+            dict_var[line[1]] = dec_bin(t+1)
+            t += 1
+print(dict_var)
 # print(new_str)
 with open("output.txt", "w") as f:
     f.write(new_str)
