@@ -33,7 +33,7 @@ def dec_bin(dec):
     binary = '0' * unused + binary
     return binary
 
-with open("testcase.txt", "r") as f1:
+with open("input123.txt", "r") as f1:
     for lines in f1.readlines():
         a = lines.strip(' ')
         b = a.strip('\t')
@@ -71,7 +71,7 @@ for item in list_of_assembly_inst:
     if item[0] in list_label2:
         dict_label[item[0].replace(":","")]=dec_bin(list_of_firstwords.index(item[0])-len(list_var))
 # print(dict_label)
-with open("testcase.txt", "r") as f1:
+with open("input123.txt", "r") as f1:
     open("myoutput.txt", "w") 
     for lines in f1.readlines():
         a = lines.strip(' ')
