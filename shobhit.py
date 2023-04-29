@@ -3,7 +3,13 @@ dict_opcodes = {"add":"00000", "sub":"00001", "mov": ["00010", "00011"], "ld":"0
                 "or":"01011", "and":"01100", "not":"01101", "cmp":"01110", "jmp":"01111", 
                 "jlt":"11100", "jgt":"11101", "je":"11111", "hlt":"11010","addf":"10000",
                 "subf":"10001"}
-
+# Types of instructions :- 
+# Type A: 3 register type - add, sub, mul, xor, not, and
+# Type B: register and immediate type - mov[0], rs, ls
+# Type C: 2 registers type - mov[1], div, not, cmp
+# Type D: register and memory address type - ld, st
+# Type E: memory address type - jmp, jlt, jgt, je
+# Type F: halt - hlt
 dict_reg = {"R0":"000", "R1":"001", "R2":"010", "R3":"011", "R4":"100", "R5":"101", "R6":"110",
             "FLAGS":"111"}
 reg_values = {"r0":0, "r1":0, "r2":0, "r3":0, "r4":0, "r5":0, "r6":0, 
@@ -12,7 +18,11 @@ list_of_assembly_inst= []
 list_of_firstwords = []
 list_var = []
 dict_var = {}
-list_jump = ["jmp","jlt","jgt","je"]
+list_typeA = ["add","sub","mul","xor","not","and"]
+list_typeB = ["mov","rs","ls"]
+list_typeC = ["mov","div","not","cmp"]
+list_typeD = ["ld","st"]
+list_typeE = ["jmp","jlt","jgt","je"]
 list_label = []
 list_label2 = []
 dict_label = {}
@@ -51,13 +61,13 @@ for item in list_of_assembly_inst:
         break
     if item[0] == "var":
         list_var.append(item[1])
-    if item[0] in list_jump:
+    if item[0] in list_typeE:
         list_label.append(item[1])
         list_label2.append(item[1]+":")        
         count+=1
-    if item[0] not in list_jump and item[0] in dict_opcodes:
+    if item[0] not in list_typeE and item[0] in dict_opcodes:
         count+=1
-    if item[0] in list_label2:
+    if item[0][-1]==":":
         count+=1
 # print(list_label)
 # print(list_label2)
