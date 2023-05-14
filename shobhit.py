@@ -12,9 +12,9 @@ dict_opcodes = {"add":"00000", "sub":"00001", "mov": ["00010", "00011"], "ld":"0
 # Type F: halt - hlt
 dict_reg = {"R0":"000", "R1":"001", "R2":"010", "R3":"011", "R4":"100", "R5":"101", "R6":"110",
             "FLAGS":"111"}
-list_reg = ["R0","R1","R2","R3","R4","R5","R6"]
+list_reg = ["R0","R1","R2","R3","R4","R5","R6","FLAGS"]
 reg_values = {"r0":0, "r1":0, "r2":0, "r3":0, "r4":0, "r5":0, "r6":0, 
-        "flag":"0000000000000000"} #Register value is 16 bits (hence range [0,65535] (0 to 2^16-1))
+        "flags":"0000000000000000"} #Register value is 16 bits (hence range [0,65535] (0 to 2^16-1))
 list_of_assembly_inst= []
 list_of_firstwords = []
 list_var = []
@@ -59,6 +59,22 @@ print(list_of_assembly_inst)
 for item in list_of_assembly_inst:
     list_of_firstwords.append(item[0])
 # print(list_of_firstwords)
+list_of_firstwords_instr=[]
+for item in list_of_assembly_inst:
+    if item[0][-1]==":":
+        list_of_firstwords_instr.append(item[1])
+        continue
+    list_of_firstwords_instr.append(item[0])
+# print(list_of_firstwords_instr)
+def_var=[]
+var_count=0
+if list_of_firstwords_instr[0]=="var":
+    def_var.append(list_of_assembly_inst[0][1])
+    var_count=1 
+for i in range(len(list_of_firstwords_instr)):
+    if list_of_firstwords_instr[i]=="var" and list_of_firstwords_instr[i+1]=="var":
+        var_count+=1
+        def_var.append(list_of_assembly_inst[i+1][1])
 count=0
 for item in list_of_assembly_inst:
     if item[0] == '':
@@ -74,6 +90,9 @@ for item in list_of_assembly_inst:
     if item[0][-1]==":":
         defined_label.append(item[0])
         count+=1
+print(var_count)
+print(def_var)
+# print(list_var)
 # print(list_label)
 # print(list_label2)
 def_label=[]
@@ -92,135 +111,141 @@ for item in list_of_assembly_inst:
         dict_label[item[0].replace(":","")]=dec_bin(list_of_firstwords.index(item[0])-len(list_var))
 # print(dict_label)
 # Error handling :-
-# error = 0
-# errorstring = ""
-# # typos in instruction name
-# for item in list_of_assembly_inst:
-#     if item[0] in list(dict_opcodes.keys()) or item[0]=="var" or item[0][-1]==":":
-#         error=0
-#     else:
-#         error=1
-#         lineno = list_of_assembly_inst.index(item)+1
-# if (error):
-#     print(f"Error on instruction no. {lineno} - There are typos in the instruction name")
-# # typos in reg name
-# for item in list_of_assembly_inst:
-#     if item[0] in list_typeA:
-#         if item[1] in list_reg and item[2] in list_reg and item[3] in list_reg:
-#             error=0
-#         else:
-#             error=1
-#             lineno = list_of_assembly_inst.index(item)+1
-#             break
-#     if item[0] in list_typeB and item[-1][0]=="$":
-#         if item[1] in list_reg:
-#             error=0
-#         else:
-#             error=1
-#             lineno = list_of_assembly_inst.index(item)+1
-#             break
-#     if item[0] in list_typeC and item[-1][0]!="$":
-#         if item[1] in list_reg and item[2] in list_reg:
-#             error=0
-#         else:
-#             error=1
-#             lineno = list_of_assembly_inst.index(item)+1
-#             break
-#     if item[0] in list_typeD:
-#         if item[1] in list_reg:
-#             error=0
-#         else:
-#             error=1
-#             lineno = list_of_assembly_inst.index(item)+1
-#             break
-# if (error):
-#     print(f"Error on instruction no. {lineno} - There are typos in register name")
-# # Illegal Imm value
-# for item in list_of_assembly_inst:
-#     if item[0] in list_typeB and item[-1][0]=="$":
-#         immvalue=int(item[-1][1:])
-#         if immvalue>=0 and immvalue<=127:
-#             error=0
-#         else:
-#             error=1
-#             lineno = list_of_assembly_inst.index(item)+1
-#             break
-# if (error):
-#     print(f"Error on instruction no. {lineno} - The immediate value is not in out of range[0,127] of register")
-# # Illegal use of FLAG register
-# for item in list_of_assembly_inst:
-#     for i in range(len(item)):
-#         if item[i]=="FLAGS":
-#             if item[0]=="mov" and item[1] in list_reg:
-#                 error=0
-#             else:
-#                 error=1
-#                 lineno = list_of_assembly_inst.index(item)+1
-#                 break
-# if (error):
-#     print(f"Error on instruction no. {lineno} - Illegal use of FLAG register - this operation is not allowed on FLAG register")
-# # variables not declared in the beginning
-# for item in list_of_firstwords[len(list_var):]:
-#     if item=="var":
-#         error=1
-#         lineno = list_of_firstwords.index(item)+1
-#         break
-# if (error):
-#     print(f"Error on instruction no. {lineno} - The variables is not declared at the beginning of the assembly program")
-# # use of undefined variables
-# for item in list_of_assembly_inst:
-#     if item[0] in list_typeD:
-#         if item[-1] not in list_var:
-#             error=1
-#             lineno = list_of_assembly_inst.index(item)+1
-#             break
-# if (error):
-#     print(f"Error on instruction no. {lineno} - The mem_address is not a variable or the variable is undefined")
-# # use of undefined labels
-# for item in list_of_assembly_inst:
-#     if item[0] in list_typeE:
-#         if item[-1] not in def_label:
-#             error=1
-#             lineno = list_of_assembly_inst.index(item)+1
-#             break
-# if (error):
-#     print(f"Error on instruction no. {lineno} - The mem_address is not a label or the label is undefined")
+errorflag=0
+errorvar1=0
+errorvar2=0
+errorvar3=0
+errorlabel1=0
+errorlabel2=0
+errorinstrname=0
+errorregname=0
+errorimmvalue=0
+# variables not declared in the beginning
+for item in list_of_firstwords[len(def_var):]:
+    if item=="var":
+        errorvar1=1
+        lineno = list_of_firstwords[len(def_var):].index(item)+len(def_var)+1
+        break
+if (errorvar1):
+    print(f"Error on line no. {lineno} - The variables are not declared at the beginning of the assembly program")
+# Missing hlt instruction
+if "hlt" not in list_of_firstwords_instr:
+    print(f"Error - Hlt instruction is missing")
+# hlt not being used as the last instruction
+if "hlt" in list_of_firstwords_instr:
+    hlt_instr=list_of_firstwords_instr.index("hlt")
+    if len(list_of_firstwords_instr)>hlt_instr+1:
+        lineno = hlt_instr+1
+        print(f"Error on line no. {lineno} - Hlt is not being used as the last instruction")
+# typos in instruction name
+for item in list_of_assembly_inst:
+    if item[0] in list(dict_opcodes.keys()) or item[0]=="var" or item[0][-1]==":":
+        errorinstrname=0
+    else:
+        errorinstrname=1
+        lineno = list_of_assembly_inst.index(item)+1
+        break
+if (errorinstrname):
+    print(f"Error on line no. {lineno} - There are typos in the instruction name")
+# typos in reg name
+for item in list_of_assembly_inst:
+    if item[0] in list_typeA:
+        if item[1] in list_reg and item[2] in list_reg and item[3] in list_reg:
+            errorregname=0
+        else:
+            errorregname=1
+            lineno = list_of_assembly_inst.index(item)+1
+            break
+    if item[0] in list_typeB and item[-1][0]=="$":
+        if item[1] in list_reg:
+            errorregname=0
+        else:
+            errorregname=1
+            lineno = list_of_assembly_inst.index(item)+1
+            break
+    if item[0] in list_typeC and item[-1][0]!="$":
+        if item[1] in list_reg and item[2] in list_reg:
+            errorregname=0
+        else:
+            errorregname=1
+            lineno = list_of_assembly_inst.index(item)+1
+            break
+    if item[0] in list_typeD:
+        if item[1] in list_reg:
+            errorregname=0
+        else:
+            errorregname=1
+            lineno = list_of_assembly_inst.index(item)+1
+            break
+if (errorregname):
+    print(f"Error on line no. {lineno} - There are typos in register name")
+# Illegal Imm value
+for item in list_of_assembly_inst:
+    if item[0] in list_typeB and item[-1][0]=="$":
+        immvalue=int(item[-1][1:])
+        if immvalue>=0 and immvalue<=127:
+            errorimmvalue=0
+        else:
+            errorimmvalue=1
+            lineno = list_of_assembly_inst.index(item)+1
+            break
+if (errorimmvalue):
+    print(f"Error on line no. {lineno} - Illegal Imm value - it is out of range[0,127]")
+# Illegal use of FLAG register
+for item in list_of_assembly_inst:
+    for i in range(len(item)):
+        if item[i]=="FLAGS":
+            if item[0]=="mov" and item[1] in list_reg:
+                errorflag+=0
+            else:
+                errorflag+=1
+                lineno = list_of_assembly_inst.index(item)+1
+                break
+if (errorflag):
+    print(f"Error on line no. {lineno} - Illegal use of FLAG register - this operation is not allowed on FLAG register")
+# misuse of label as variable
+for item in list_of_assembly_inst:
+    if item[0] in list_typeD:
+        if item[-1] not in list_var and item[-1] in def_label:
+            errorvar2=1
+            lineno = list_of_assembly_inst.index(item)+1
+            break
+if (errorvar2):
+    print(f"Error on line no. {lineno} - The mem_address is not a variable but a label (misuse of label as variable)")
+# use of undefined variables
+for item in list_of_assembly_inst:
+    if item[0] in list_typeD:
+        if item[-1] not in list_var:
+            errorvar3=1
+            lineno = list_of_assembly_inst.index(item)+1
+            break
+if (errorvar3):
+    print(f"Error on line no. {lineno} - The mem_address is not a variable or the variable is undefined/undeclared")
+# misuse of variable as label 
+for item in list_of_assembly_inst:
+    if item[0] in list_typeE:
+        if item[-1] not in def_label and item[-1] in list_var:
+            errorlabel1=1
+            lineno = list_of_assembly_inst.index(item)+1
+            break
+if (errorlabel1):
+    print(f"Error on line no. {lineno} - The mem_address is not a label but a variable (misuse of variable as label)")
+# use of undefined labels
+for item in list_of_assembly_inst:
+    if item[0] in list_typeE:
+        if item[-1] not in def_label:
+            errorlabel2=1
+            lineno = list_of_assembly_inst.index(item)+1
+            break
+if (errorlabel2):
+    print(f"Error on line no. {lineno} - The mem_address is not a label or the label is undefined (no such label is found)")
 
-
-# # ERROR HANDLING FOR CASES F AND G - By Sujal Soni
-
-# for item in list_of_assembly_inst:
-#     if item[0] in list_label2:
-#         if item[1] in list_typeD:
-#             if item[3] not in list_var and item[3] in list_label:
-#                 print("ERROR : Misuse of label as variable\n")
-#             elif item[3] not in list_var and item[3] not in list_label:
-#                 print("ERROR : Use of undefined variable\n")
-#         elif item[1] in list_typeE:
-#             if item[2] not in list_label and item[2] in list_var:
-#                 print("ERROR : Misuse of variables as label\n")
-#             elif item[2] not in list_label and item[2] not in list_var:
-#                 print("ERROR : No such label found\n")
-#     else:
-#         if item[0] in list_typeD:
-#             if item[2] not in list_var and item[2] in list_label:
-#                 print("ERROR : Misuse of label as variable\n")
-#             elif item[2] not in list_var and item[2] not in list_label:
-#                 print("ERROR : Use of undefined variable\n")
-#         elif item[0] in list_typeE:
-#             if item[1] not in list_label and item[1] in list_var:
-#                 print("ERROR : Misuse of variables as label\n")
-#             elif item[1] not in list_label and item[1] not in list_var:
-#                 print("ERROR : No such label found\n")
-
-        
 with open("testcase.txt", "r") as f1:
     open("output123.txt", "w") 
     for lines in f1.readlines():
         a = lines.strip(' ')
         b = a.strip('\t')
         c = b.strip('\n')
-        #q = lines[:-1]
         line = c.split(" ")
         str_final = ''
         single_line = ''
