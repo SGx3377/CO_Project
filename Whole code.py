@@ -121,6 +121,7 @@ for item in list_of_assembly_inst:
         dict_label[item[0].replace(":","")]=dec_bin(list_of_firstwords.index(item[0])-len(list_var))
 # print(dict_label)
 # Error handling :-
+errorgen=0
 errorflag=0
 errorvar1=0
 errorvar2=0
@@ -131,6 +132,17 @@ errorinstrname=0
 errorregname=0
 errorimmvalue=0
 newstring="" 
+# General Syntax Error
+for item in list_of_assembly_inst2:
+    if len(item)<=1 and item[0]!="hlt":
+        errorgen=1
+        lineno = list_of_assembly_inst2.index(item)+1
+        break
+if (errorgen):
+    newstring+=f"Error on line no. {lineno} - General Syntax Error -> Instruction incomplete"
+    with open("stdout.txt", "w") as fe:
+        fe.write(newstring) 
+    exit()
 # variables not declared in the beginning
 for item in list_of_firstwords[len(def_var):]:
     if item=="var":
