@@ -45,12 +45,17 @@ def dec_bin(dec):
     binary = '0' * unused + binary
     return binary
 
-with open("stdin.txt", "r") as f1:
+with open("test05.txt", "r") as f1:
     for lines in f1.readlines():
         a = lines.strip(' ')
         b = a.strip('\t')
         c = b.strip('\n')
-        line = c.split(" ")
+        d = c.replace("\t"," ")
+        line1 = d.split(" ")
+        line=[]
+        for item in line1:
+            if item!="":
+                line.append(item)
         if line[0]=="":
             continue
         list_of_assembly_inst.append(line)
@@ -296,13 +301,20 @@ if (errorlabel2):
         fe.write(newstring) 
     exit()
 
-with open("stdin.txt", "r") as f1:
+with open("test05.txt", "r") as f1:
     open("stdout.txt", "w") 
     for lines in f1.readlines():
         a = lines.strip(' ')
         b = a.strip('\t')
         c = b.strip('\n')
-        line = c.split(" ")
+        d = c.replace("\t"," ")
+        line1 = d.split(" ")
+        line=[]
+        for item in line1:
+            if item!="":
+                line.append(item)
+        if line[0]=="":
+            continue
         str_final = ''
         single_line = ''
         new_str = ''
