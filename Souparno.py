@@ -45,7 +45,7 @@ def dec_bin(dec):
     binary = '0' * unused + binary
     return binary
 
-with open("Test5.txt", "r") as f1:
+with open("stdin.txt", "r") as f1:
     for lines in f1.readlines():
         a = lines.strip(' ')
         b = a.strip('\t')
@@ -303,7 +303,8 @@ if (errorregname):
     with open("stdout.txt", "w") as fe:
         fe.write(newstring) 
     exit()
-with open("Test5.txt", "r") as f1:
+
+with open("stdin.txt", "r") as f1:
     open("stdout.txt", "w") 
     for lines in f1.readlines():
         a = lines.strip(' ')
@@ -359,6 +360,6 @@ with open("Test5.txt", "r") as f1:
                 f2.write(new_str)        
 f1.close()
 f2.close()
-for i in range(count):
-    dict_assembler[dec_bin(i)]=list_assembler[i]
-# print(dict_assembler)
+# for i in range(count):
+#     dict_assembler[dec_bin(i)]=list_assembler[i]
+# # print(dict_assembler)
