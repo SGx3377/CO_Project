@@ -45,7 +45,7 @@ def dec_bin(dec):
     binary = '0' * unused + binary
     return binary
 
-with open("test05.txt", "r") as f1:
+with open("error-case1.txt", "r") as f1:
     for lines in f1.readlines():
         a = lines.strip(' ')
         b = a.strip('\t')
@@ -84,9 +84,10 @@ if list_of_firstwords_instr[0]=="var":
     def_var.append(list_of_assembly_inst[0][1])
     var_count=1 
 for i in range(len(list_of_firstwords_instr)):
-    if list_of_firstwords_instr[i]=="var" and list_of_firstwords_instr[i+1]=="var":
+    if i!=len(list_of_firstwords_instr)-1 and list_of_firstwords_instr[i]=="var" and list_of_firstwords_instr[i+1]=="var":
         var_count+=1
         def_var.append(list_of_assembly_inst[i+1][1])
+# print(def_var)
 count=0
 for item in list_of_assembly_inst:
     if item[0] == '':
@@ -137,28 +138,6 @@ errorinstrname=0
 errorregname=0
 errorimmvalue=0
 newstring="" 
-# General Syntax Error
-for item in list_of_assembly_inst2:
-    if len(item)<=1 and item[0]!="hlt":
-        errorgen=1
-        lineno = list_of_assembly_inst2.index(item)+1
-        break
-if (errorgen):
-    newstring+=f"Error on line no. {lineno} - General Syntax Error -> Instruction incomplete"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
-    exit()
-# variables not declared in the beginning
-for item in list_of_firstwords[len(def_var):]:
-    if item=="var":
-        errorvar1=1
-        lineno = list_of_firstwords[len(def_var):].index(item)+len(def_var)+1
-        break
-if (errorvar1):
-    newstring+=f"Error on line no. {lineno} - The variables are not declared at the beginning of the assembly program"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
-    exit()
 # Missing hlt instruction
 if "hlt" not in list_of_firstwords_instr:
     newstring+="Error - Hlt instruction is missing"
@@ -170,10 +149,33 @@ if "hlt" in list_of_firstwords_instr:
     hlt_instr=list_of_firstwords_instr.index("hlt")
     if len(list_of_firstwords_instr)>hlt_instr+1:
         lineno = hlt_instr+1
-        newstring+=f"Error on line no. {lineno} - Hlt is not being used as the last instruction"
+        newstring+=f"Error in line no. {lineno} - Hlt is not being used as the last instruction"
         with open("stdout.txt", "w") as fe:
             fe.write(newstring) 
         exit()
+# General Syntax Error
+for item in list_of_assembly_inst2:
+    if len(item)<=1 and item[0]!="hlt":
+        errorgen=1
+        lineno = list_of_assembly_inst2.index(item)+1
+        break
+if (errorgen):
+    newstring+=f"Error in line no. {lineno} - General Syntax Error -> Instruction invalid or incomplete"
+    with open("stdout.txt", "w") as fe:
+        fe.write(newstring) 
+    exit()
+# variables not declared in the beginning
+for item in list_of_firstwords[len(def_var):]:
+    if item=="var":
+        errorvar1=1
+        lineno = list_of_firstwords[len(def_var):].index(item)+len(def_var)+1
+        break
+if (errorvar1):
+    newstring+=f"Error in line no. {lineno} - The variables are not declared at the beginning of the assembly program"
+    with open("stdout.txt", "w") as fe:
+        fe.write(newstring) 
+    exit()
+
 # typos in instruction name
 for item in list_of_assembly_inst2:
     if item[0] in list(dict_opcodes.keys()) or item[0]=="var" or item[0][-1]==":":
@@ -183,7 +185,86 @@ for item in list_of_assembly_inst2:
         lineno = list_of_assembly_inst2.index(item)+1
         break
 if (errorinstrname):
-    newstring+=f"Error on line no. {lineno} - There are typos in the instruction name"
+    newstring+=f"Error in line no. {lineno} - There are typos in the instruction name"
+    with open("stdout.txt", "w") as fe:
+        fe.write(newstring) 
+    exit()
+
+# Illegal Imm value
+for item in list_of_assembly_inst2:
+    if item[0] in list_typeB and item[-1][0]=="$":
+        immvalue=int(item[-1][1:])
+        if immvalue>=0 and immvalue<=127:
+            errorimmvalue=0
+        else:
+            errorimmvalue=1
+            lineno = list_of_assembly_inst2.index(item)+1
+            break
+if (errorimmvalue):
+    newstring+=f"Error in line no. {lineno} - Illegal Imm value - it is out of range[0,127]"
+    with open("stdout.txt", "w") as fe:
+        fe.write(newstring) 
+    exit()
+# Illegal use of FLAG register
+for item in list_of_assembly_inst2:
+    for i in range(len(item)):
+        if item[i]=="FLAGS":
+            if item[0]=="mov" and item[1] in list_reg:
+                errorflag+=0
+            else:
+                errorflag+=1
+                lineno = list_of_assembly_inst2.index(item)+1
+                break
+if (errorflag):
+    newstring+=f"Error in line no. {lineno} - Illegal use of FLAG register - this operation is not allowed on FLAG register"
+    with open("stdout.txt", "w") as fe:
+        fe.write(newstring) 
+    exit()
+# misuse of label as variable
+for item in list_of_assembly_inst2:
+    if item[0] in list_typeD:
+        if item[-1] not in list_var and item[-1] in def_label:
+            errorvar2=1
+            lineno = list_of_assembly_inst2.index(item)+1
+            break
+if (errorvar2):
+    newstring+=f"Error in line no. {lineno} - The mem_address is not a variable but a label (misuse of label as variable)"
+    with open("stdout.txt", "w") as fe:
+        fe.write(newstring) 
+    exit()
+# use of undefined variables
+for item in list_of_assembly_inst2:
+    if item[0] in list_typeD:
+        if item[-1] not in list_var:
+            errorvar3=1
+            lineno = list_of_assembly_inst2.index(item)+1
+            break
+if (errorvar3):
+    newstring+=f"Error in line no. {lineno} - The mem_address is not a variable or the variable is undefined/undeclared"
+    with open("stdout.txt", "w") as fe:
+        fe.write(newstring) 
+    exit()
+# misuse of variable as label 
+for item in list_of_assembly_inst2:
+    if item[0] in list_typeE:
+        if item[-1] not in def_label and item[-1] in list_var:
+            errorlabel1=1
+            lineno = list_of_assembly_inst2.index(item)+1
+            break
+if (errorlabel1):
+    newstring+=f"Error in line no. {lineno} - The mem_address is not a label but a variable (misuse of variable as label)"
+    with open("stdout.txt", "w") as fe:
+        fe.write(newstring) 
+    exit()
+# use of undefined labels
+for item in list_of_assembly_inst2:
+    if item[0] in list_typeE:
+        if item[-1] not in def_label:
+            errorlabel2=1
+            lineno = list_of_assembly_inst2.index(item)+1
+            break
+if (errorlabel2):
+    newstring+=f"Error in line no. {lineno} - The mem_address is not a label or the label is undefined (no such label is found)"
     with open("stdout.txt", "w") as fe:
         fe.write(newstring) 
     exit()
@@ -218,90 +299,11 @@ for item in list_of_assembly_inst2:
             lineno = list_of_assembly_inst2.index(item)+1
             break
 if (errorregname):
-    newstring+=f"Error on line no. {lineno} - There are typos in register name"
+    newstring+=f"Error in line no. {lineno} - There are typos in register name"
     with open("stdout.txt", "w") as fe:
         fe.write(newstring) 
     exit()
-# Illegal Imm value
-for item in list_of_assembly_inst2:
-    if item[0] in list_typeB and item[-1][0]=="$":
-        immvalue=int(item[-1][1:])
-        if immvalue>=0 and immvalue<=127:
-            errorimmvalue=0
-        else:
-            errorimmvalue=1
-            lineno = list_of_assembly_inst2.index(item)+1
-            break
-if (errorimmvalue):
-    newstring+=f"Error on line no. {lineno} - Illegal Imm value - it is out of range[0,127]"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
-    exit()
-# Illegal use of FLAG register
-for item in list_of_assembly_inst2:
-    for i in range(len(item)):
-        if item[i]=="FLAGS":
-            if item[0]=="mov" and item[1] in list_reg:
-                errorflag+=0
-            else:
-                errorflag+=1
-                lineno = list_of_assembly_inst2.index(item)+1
-                break
-if (errorflag):
-    newstring+=f"Error on line no. {lineno} - Illegal use of FLAG register - this operation is not allowed on FLAG register"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
-    exit()
-# misuse of label as variable
-for item in list_of_assembly_inst2:
-    if item[0] in list_typeD:
-        if item[-1] not in list_var and item[-1] in def_label:
-            errorvar2=1
-            lineno = list_of_assembly_inst2.index(item)+1
-            break
-if (errorvar2):
-    newstring+=f"Error on line no. {lineno} - The mem_address is not a variable but a label (misuse of label as variable)"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
-    exit()
-# use of undefined variables
-for item in list_of_assembly_inst2:
-    if item[0] in list_typeD:
-        if item[-1] not in list_var:
-            errorvar3=1
-            lineno = list_of_assembly_inst2.index(item)+1
-            break
-if (errorvar3):
-    newstring+=f"Error on line no. {lineno} - The mem_address is not a variable or the variable is undefined/undeclared"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
-    exit()
-# misuse of variable as label 
-for item in list_of_assembly_inst2:
-    if item[0] in list_typeE:
-        if item[-1] not in def_label and item[-1] in list_var:
-            errorlabel1=1
-            lineno = list_of_assembly_inst2.index(item)+1
-            break
-if (errorlabel1):
-    newstring+=f"Error on line no. {lineno} - The mem_address is not a label but a variable (misuse of variable as label)"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
-    exit()
-# use of undefined labels
-for item in list_of_assembly_inst2:
-    if item[0] in list_typeE:
-        if item[-1] not in def_label:
-            errorlabel2=1
-            lineno = list_of_assembly_inst2.index(item)+1
-            break
-if (errorlabel2):
-    newstring+=f"Error on line no. {lineno} - The mem_address is not a label or the label is undefined (no such label is found)"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
-    exit()
-
-with open("test05.txt", "r") as f1:
+with open("error-case1.txt", "r") as f1:
     open("stdout.txt", "w") 
     for lines in f1.readlines():
         a = lines.strip(' ')
