@@ -45,7 +45,7 @@ def dec_bin(dec):
     binary = '0' * unused + binary
     return binary
 
-with open("Test5.txt", "r") as f1:
+with open("Error4.txt", "r") as f1:
     for lines in f1.readlines():
         a = lines.strip(' ')
         b = a.strip('\t')
@@ -296,7 +296,7 @@ if (errorlabel2):
         fe.write(newstring) 
     exit()
 
-with open("Test5.txt", "r") as f1:
+with open("Error4.txt", "r") as f1:
     open("stdout.txt", "w") 
     for lines in f1.readlines():
         a = lines.strip(' ')
