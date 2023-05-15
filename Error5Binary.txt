@@ -1,0 +1,1 @@
+Error in line no. 8 - The variables are not declared at the beginning of the assembly program

@@ -1,0 +1,1 @@
+Error in line no. 2 - Hlt is not being used as the last instruction
