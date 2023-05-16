@@ -1,3 +1,4 @@
+import sys
 dict_opcodes = {"add":"00000", "sub":"00001", "mov": ["00010", "00011"], "ld":"00100", "st":"00101", 
                 "mul":"00110", "div":"00111", "rs":"01000", "ls":"01001", "xor":"01010", 
                 "or":"01011", "and":"01100", "not":"01101", "cmp":"01110", "jmp":"01111", 
@@ -45,21 +46,24 @@ def dec_bin(dec):
     binary = '0' * unused + binary
     return binary
 
-with open("stdin.txt", "r") as f1:
-    for lines in f1.readlines():
-        a = lines.strip(' ')
-        b = a.strip('\t')
-        c = b.strip('\n')
-        d = c.replace("\t"," ")
-        line1 = d.split(" ")
-        line=[]
-        for item in line1:
-            if item!="":
-                line.append(item)
-        if line[0]=="":
-            continue
-        list_of_assembly_inst.append(line)
-f1.close()
+l = []
+for i in sys.stdin:
+    l.append(i)
+
+for lines in l:
+    a = lines.strip(' ')
+    b = a.strip('\t')
+    c = b.strip('\n')
+    d = c.replace("\t"," ")
+    line1 = d.split(" ")
+    line=[]
+    for item in line1:
+        if item!="":
+            line.append(item)
+    if line[0]=="":
+        continue
+    list_of_assembly_inst.append(line)
+
 # print(list_of_assembly_inst)
 list_of_assembly_inst2=[]
 for item in list_of_assembly_inst:
@@ -141,8 +145,7 @@ newstring=""
 # Missing hlt instruction
 if "hlt" not in list_of_firstwords_instr:
     newstring+="Error - Hlt instruction is missing"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
+    print(newstring) 
     exit()
 # hlt not being used as the last instruction
 if "hlt" in list_of_firstwords_instr:
@@ -150,8 +153,7 @@ if "hlt" in list_of_firstwords_instr:
     if len(list_of_firstwords_instr)>hlt_instr+1:
         lineno = hlt_instr+1
         newstring+=f"Error in line no. {lineno} - Hlt is not being used as the last instruction"
-        with open("stdout.txt", "w") as fe:
-            fe.write(newstring) 
+        print(newstring)
         exit()
 # General Syntax Error
 for item in list_of_assembly_inst2:
@@ -161,8 +163,7 @@ for item in list_of_assembly_inst2:
         break
 if (errorgen):
     newstring+=f"Error in line no. {lineno} - General Syntax Error -> Instruction invalid or incomplete"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
+    print(newstring)
     exit()
 # variables not declared in the beginning
 for item in list_of_firstwords[len(def_var):]:
@@ -172,8 +173,7 @@ for item in list_of_firstwords[len(def_var):]:
         break
 if (errorvar1):
     newstring+=f"Error in line no. {lineno} - The variables are not declared at the beginning of the assembly program"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
+    print(newstring)
     exit()
 
 # typos in instruction name
@@ -186,8 +186,7 @@ for item in list_of_assembly_inst2:
         break
 if (errorinstrname):
     newstring+=f"Error in line no. {lineno} - There are typos in the instruction name"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
+    print(newstring)
     exit()
 
 # Illegal Imm value
@@ -202,8 +201,7 @@ for item in list_of_assembly_inst2:
             break
 if (errorimmvalue):
     newstring+=f"Error in line no. {lineno} - Illegal Imm value - it is out of range[0,127]"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
+    print(newstring)
     exit()
 # Illegal use of FLAG register
 for item in list_of_assembly_inst2:
@@ -217,8 +215,7 @@ for item in list_of_assembly_inst2:
                 break
 if (errorflag):
     newstring+=f"Error in line no. {lineno} - Illegal use of FLAG register - this operation is not allowed on FLAG register"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
+    print(newstring)
     exit()
 # misuse of label as variable
 for item in list_of_assembly_inst2:
@@ -229,8 +226,7 @@ for item in list_of_assembly_inst2:
             break
 if (errorvar2):
     newstring+=f"Error in line no. {lineno} - The mem_address is not a variable but a label (misuse of label as variable)"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
+    print(newstring)
     exit()
 # use of undefined variables
 for item in list_of_assembly_inst2:
@@ -241,8 +237,7 @@ for item in list_of_assembly_inst2:
             break
 if (errorvar3):
     newstring+=f"Error in line no. {lineno} - The mem_address is not a variable or the variable is undefined/undeclared"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
+    print(newstring)
     exit()
 # misuse of variable as label 
 for item in list_of_assembly_inst2:
@@ -253,8 +248,7 @@ for item in list_of_assembly_inst2:
             break
 if (errorlabel1):
     newstring+=f"Error in line no. {lineno} - The mem_address is not a label but a variable (misuse of variable as label)"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
+    print(newstring)
     exit()
 # use of undefined labels
 for item in list_of_assembly_inst2:
@@ -265,8 +259,7 @@ for item in list_of_assembly_inst2:
             break
 if (errorlabel2):
     newstring+=f"Error in line no. {lineno} - The mem_address is not a label or the label is undefined (no such label is found)"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
+    print(newstring)
     exit()
 # typos in reg name
 for item in list_of_assembly_inst2:
@@ -300,66 +293,53 @@ for item in list_of_assembly_inst2:
             break
 if (errorregname):
     newstring+=f"Error in line no. {lineno} - There are typos in register name"
-    with open("stdout.txt", "w") as fe:
-        fe.write(newstring) 
+    print(newstring)
     exit()
 
-with open("stdin.txt", "r") as f1:
-    open("stdout.txt", "w") 
-    for lines in f1.readlines():
-        a = lines.strip(' ')
-        b = a.strip('\t')
-        c = b.strip('\n')
-        d = c.replace("\t"," ")
-        line1 = d.split(" ")
-        line=[]
-        for item in line1:
-            if item!="":
-                line.append(item)
-        if line[0]=="":
-            continue
-        str_final = ''
-        single_line = ''
-        new_str = ''
-
-        for i in line:
-            #print(i)
-            if i == '':
-                break
-            if i == "var":
-                break
-            
-            if i in dict_opcodes:
-                if i == "mov":
-                    if line[-1][0] == '$':
-                        single_line += dict_opcodes[i][0]
-                    else:
-                        single_line += dict_opcodes[i][1]
-
+for lines in l:
+    a = lines.strip(' ')
+    b = a.strip('\t')
+    c = b.strip('\n')
+    d = c.replace("\t"," ")
+    line1 = d.split(" ")
+    line=[]
+    for item in line1:
+        if item!="":
+            line.append(item)
+    if line[0]=="":
+        continue
+    str_final = ''
+    single_line = ''
+    new_str = ''
+    for i in line:
+        #print(i)
+        if i == '':
+            break
+        if i == "var":
+            break
+        
+        if i in dict_opcodes:
+            if i == "mov":
+                if line[-1][0] == '$':
+                    single_line += dict_opcodes[i][0]
                 else:
-                    single_line += dict_opcodes[i]
-
-            if i in dict_reg:
-                single_line += dict_reg[i]
-
-            if i[0] == '$':
-                single_line += dec_bin(i[1::1])
-
-            if i in dict_var:
-                single_line += dict_var[i]
-
-            if i in def_label:
-                single_line += dict_label[i]
-
-        unused = 16 - len(single_line)
-        str_final = single_line[0:5] + ('0'*unused) + (single_line[5:])
-        new_str += str_final + '\n'
-        if new_str!="0000000000000000\n":
-            list_assembler.append(str_final)
-            with open("stdout.txt", "a") as f2:
-                f2.write(new_str)        
-f1.close()
-f2.close()
+                    single_line += dict_opcodes[i][1]
+            else:
+                single_line += dict_opcodes[i]
+        if i in dict_reg:
+            single_line += dict_reg[i]
+        if i[0] == '$':
+            single_line += dec_bin(i[1::1])
+        if i in dict_var:
+            single_line += dict_var[i]
+        if i in def_label:
+            single_line += dict_label[i]
+    unused = 16 - len(single_line)
+    str_final = single_line[0:5] + ('0'*unused) + (single_line[5:])
+    new_str += str_final + '\n'
+    if new_str!="0000000000000000\n":
+        list_assembler.append(str_final)
+        print(new_str)       
 # for i in range(count):
 #     dict_assembler[dec_bin(i)]=list_assembler[i]
 # # print(dict_assembler)
