@@ -46,11 +46,11 @@ def dec_bin(dec):
     binary = '0' * unused + binary
     return binary
 
-l = []
+lineinput = []
 for i in sys.stdin:
-    l.append(i)
+    lineinput.append(i)
 
-for lines in l:
+for lines in lineinput:
     a = lines.strip(' ')
     b = a.strip('\t')
     c = b.strip('\n')
@@ -296,7 +296,7 @@ if (errorregname):
     print(newstring)
     exit()
 
-for lines in l:
+for lines in lineinput:
     a = lines.strip(' ')
     b = a.strip('\t')
     c = b.strip('\n')
