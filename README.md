@@ -11,12 +11,11 @@ The program is able to generate errors for different types of invalid instructio
 which the error is encountered.
 
 Input/Output - 
-The input for the program has to be done manually from an input file "stdin.txt" which has the assembly language code.
-The output will be a file "stdout.txt" that would have the binary format of the respective instructions.
+The assembler reads the assembly program as an input text file using sys.stdin and supports automated testing.
+It prints the binary format of the respective instructions if the assembly program is error free.
 
 Error Handling - 
-The errors present in the assembly code will be printed in the output file "stdout.txt" along with the line number in which the error is
-encountered. 
+The errors present in the assembly code will be printed along with the line number in which the error is encountered. 
 The error handling has been done using IF-ELSE and exit() function.
 
 Extra - 
